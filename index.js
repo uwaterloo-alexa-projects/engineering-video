@@ -80,7 +80,8 @@ const PlayVideoIntentHandler = {
     } else {
       handlerInput.responseBuilder
         .withSimpleCard(resources.background.TITLE, resources.prompts.device_requirement_text)
-        .speak(resources.prompts.device_requirement_voice);
+        .speak(resources.prompts.device_requirement_voice)
+        .getResponse();
     }
 
     return handlerInput.responseBuilder
