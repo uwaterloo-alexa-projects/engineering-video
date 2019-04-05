@@ -4,6 +4,47 @@
 const Alexa = require('ask-sdk-core');
 const resources = require('./resources.js');
 
+const FaqIntentHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'LaunchRequest'
+      || (handlerInput.requestEnvelope.request.type === 'IntentRequest'
+        && handlerInput.requestEnvelope.request.intent.name === 'FaqIntent');
+  },
+  handle(handlerInput) {
+    const filledSlots = handlerInput.requestEnvelope.request.intent.slots;
+    const slotvalues_notresolved = getSlotValues(filledSlots);
+    const content = slotvalues_notresolved.content.resolved;
+
+    let speechReponse = '';
+    let cardTitle = '';
+    let cardSubTitle = '';
+    let backgroundImage;
+
+    if (content === undefined) {
+      // start case
+      speechReponse = resources.intro.greeting;
+      cardTitle = resources.intro.title;
+      cardSubTitle = resources.intro.subtitle;
+    } else {
+      let questionKey = resources.phraseToQuestion[content];
+      let response = resources[questionKey];
+
+      if (response === undefined) {
+        speechReponse = resources.prompts.speech_error;
+      } else {
+        speechReponse = response;
+      }
+    }
+
+    return handlerInput.responseBuilder
+      .speak(speechReponse)
+      .reprompt(resources.prompts.default_reprompt)
+      .addElicitSlotDirective('content')
+      .withSimpleCard(cardTitle, cardSubTitle)
+      .getResponse();
+  }
+}
+
 const PlayVideoIntentHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'LaunchRequest'
@@ -136,7 +177,8 @@ exports.handler = skillBuilder
     AboutIntentHandler,
     HelpIntentHandler,
     CancelAndStopIntentHandler,
-    SessionEndedRequestHandler
+    SessionEndedRequestHandler,
+    FaqIntentHandler
   )
   .addErrorHandlers(ErrorHandler)
   .lambda();
