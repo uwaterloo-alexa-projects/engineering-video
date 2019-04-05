@@ -2,13 +2,7 @@
 /* eslint-disable  no-console */
 
 const Alexa = require('ask-sdk-core');
-
-const BACKGROUND_IMAGE_URL = 'https://s3.amazonaws.com/cdn.dabblelab.com/img/echo-show-bg-blue.png',
-  VIDEO_URL = 'https://s3.amazonaws.com/videoengineering/Educating+the+Engineer+of+the+Future+Campaign+-+Together+We+Did+This.mp4',
-  VIDEO_TITLE = "Video from pixabay.com",
-  VIDEO_SUBTITLE = "Used under Creative Commons.",
-  TITLE = 'Visual Escape',
-  TEXT = 'A 60-second virtual vacation for your brain. Please relax before the video loads.';
+const resources = require('./resources.js');
 
 const PlayVideoIntentHandler = {
   canHandle(handlerInput) {
@@ -20,12 +14,12 @@ const PlayVideoIntentHandler = {
     if (supportsDisplay(handlerInput)) {
 
       let backgroundImage = new Alexa.ImageHelper()
-        .withDescription(TITLE)
-        .addImageInstance(BACKGROUND_IMAGE_URL)
+        .withDescription(resources.background.TITLE)
+        .addImageInstance(resources.background.BACKGROUND_IMAGE_URL)
         .getImage();
 
       let primaryText = new Alexa.RichTextContentHelper()
-        .withPrimaryText(TEXT)
+        .withPrimaryText(resources.background.TEXT)
         .getTextContent();
 
       let myTemplate = {
@@ -33,19 +27,19 @@ const PlayVideoIntentHandler = {
         token: 'Welcome',
         backButton: 'HIDDEN',
         backgroundImage: backgroundImage,
-        title: TITLE,
+        title: resources.background.TITLE,
         textContent: primaryText,
       }
 
       handlerInput.responseBuilder
-        .addVideoAppLaunchDirective(VIDEO_URL, VIDEO_TITLE, VIDEO_SUBTITLE)
+        .addVideoAppLaunchDirective(resources.background.VIDEO_URL, resources.background.VIDEO_TITLE, resources.background.VIDEO_SUBTITLE)
         .addRenderTemplateDirective(myTemplate)
-        .withSimpleCard(TITLE, VIDEO_SUBTITLE);
+        .withSimpleCard(resources.background.TITLE, resources.background.VIDEO_SUBTITLE);
 
     } else {
       handlerInput.responseBuilder
-        .withSimpleCard(TITLE, "This skill requires a device with the ability to play videos.")
-        .speak("The video cannot be played on your device. To watch this video, try launching this skill from an echo show device.");
+        .withSimpleCard(resources.background.TITLE, resources.prompts.device_requirement_text)
+        .speak(resources.prompts.device_requirement_voice);
     }
 
     return handlerInput.responseBuilder
